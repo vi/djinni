@@ -37,12 +37,12 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
     var hppFwds = mutable.TreeSet[String]()
     var cpp = mutable.TreeSet[String]()
 
-    def find(ty: TypeRef, fromInterface: Boolean) { find(ty.resolved, fromInterface) }
-    def find(tm: MExpr, fromInterface: Boolean) {
-      tm.args.foreach((x) => find(x, fromInterface))
-      find(tm.base, fromInterface)
+    def find(ty: TypeRef, dontIncludeRecordsAndEnums: Boolean) { find(ty.resolved, dontIncludeRecordsAndEnums) }
+    def find(tm: MExpr, dontIncludeRecordsAndEnums: Boolean) {
+      tm.args.foreach((x) => find(x, dontIncludeRecordsAndEnums))
+      find(tm.base, dontIncludeRecordsAndEnums)
     }
-    def find(m: Meta, fromInterface : Boolean) = for(r <- marshal.references(m, name, fromInterface)) r match {
+    def find(m: Meta, dontIncludeRecordsAndEnums : Boolean) = for(r <- marshal.references(m, name, dontIncludeRecordsAndEnums)) r match {
       case ImportRef(arg) => hpp.add("#include " + arg)
       case DeclRef(decl, Some(spec.cppNamespace)) => hppFwds.add(decl)
       case DeclRef(_, _) =>
@@ -256,7 +256,7 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
     val refs = new CppRefs(ident.name)
     i.methods.map(m => {
       m.params.map(p => refs.find(p.ty, true))
-      m.ret.foreach((x)=>refs.find(x,true))
+      m.ret.foreach((x)=>refs.find(x, true))
     })
     i.consts.map(c => {
       refs.find(c.ty, true)
