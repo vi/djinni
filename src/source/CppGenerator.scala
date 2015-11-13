@@ -37,12 +37,12 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
     var hppFwds = mutable.TreeSet[String]()
     var cpp = mutable.TreeSet[String]()
 
-    def find(ty: TypeRef) { find(ty.resolved) }
-    def find(tm: MExpr) {
-      tm.args.foreach(find)
-      find(tm.base)
+    def find(ty: TypeRef, fromInterface: Boolean) { find(ty.resolved, fromInterface) }
+    def find(tm: MExpr, fromInterface: Boolean) {
+      tm.args.foreach((x) => find(x, fromInterface))
+      find(tm.base, fromInterface)
     }
-    def find(m: Meta) = for(r <- marshal.references(m, name)) r match {
+    def find(m: Meta, fromInterface : Boolean) = for(r <- marshal.references(m, name, fromInterface)) r match {
       case ImportRef(arg) => hpp.add("#include " + arg)
       case DeclRef(decl, Some(spec.cppNamespace)) => hppFwds.add(decl)
       case DeclRef(_, _) =>
@@ -130,8 +130,8 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
 
   override def generateRecord(origin: String, ident: Ident, doc: Doc, params: Seq[TypeParam], r: Record) {
     val refs = new CppRefs(ident.name)
-    r.fields.foreach(f => refs.find(f.ty))
-    r.consts.foreach(c => refs.find(c.ty))
+    r.fields.foreach(f => refs.find(f.ty, false))
+    r.consts.foreach(c => refs.find(c.ty, false))
     refs.hpp.add("#include <utility>") // Add for std::move
 
     val self = marshal.typename(ident, r)
@@ -255,11 +255,11 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
   override def generateInterface(origin: String, ident: Ident, doc: Doc, typeParams: Seq[TypeParam], i: Interface) {
     val refs = new CppRefs(ident.name)
     i.methods.map(m => {
-      m.params.map(p => refs.find(p.ty))
-      m.ret.foreach(refs.find)
+      m.params.map(p => refs.find(p.ty, true))
+      m.ret.foreach((x)=>refs.find(x,true))
     })
     i.consts.map(c => {
-      refs.find(c.ty)
+      refs.find(c.ty, true)
     })
 
     val self = marshal.typename(ident, i)

@@ -32,7 +32,7 @@ class CppMarshal(spec: Spec) extends Marshal(spec) {
   override def toCpp(tm: MExpr, expr: String): String = throw new AssertionError("cpp to cpp conversion")
   override def fromCpp(tm: MExpr, expr: String): String = throw new AssertionError("cpp to cpp conversion")
 
-  def references(m: Meta, exclude: String): Seq[SymbolReference] = m match {
+  def references(m: Meta, exclude: String, fromInterface: Boolean): Seq[SymbolReference] = m match {
     case p: MPrimitive => p.idlName match {
       case "i8" | "i16" | "i32" | "i64" => List(ImportRef("<cstdint>"))
       case _ => List()
@@ -45,9 +45,13 @@ class CppMarshal(spec: Spec) extends Marshal(spec) {
     case MSet => List(ImportRef("<unordered_set>"))
     case MMap => List(ImportRef("<unordered_map>"))
     case d: MDef => d.defType match {
-      case DEnum | DRecord =>
+      case DEnum | DRecord => List()
         if (d.name != exclude) {
-          List(ImportRef(include(d.name)))
+          if (fromInterface) {
+            List(DeclRef(s"class ${typename(d.name, d.body)};", Some(spec.cppNamespace)))
+          } else {
+            List(ImportRef(include(d.name)))
+          }
         } else {
           List()
         }
