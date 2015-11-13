@@ -45,10 +45,20 @@ class CppMarshal(spec: Spec) extends Marshal(spec) {
     case MSet => List(ImportRef("<unordered_set>"))
     case MMap => List(ImportRef("<unordered_map>"))
     case d: MDef => d.defType match {
-      case DEnum | DRecord =>
+      case DRecord =>
         if (d.name != exclude) {
           if (dontIncludeRecordsAndEnums) {
             List(DeclRef(s"class ${typename(d.name, d.body)};", Some(spec.cppNamespace)))
+          } else {
+            List(ImportRef(include(d.name)))
+          }
+        } else {
+          List()
+        }
+      case DEnum =>
+        if (d.name != exclude) {
+          if (dontIncludeRecordsAndEnums) {
+            List(DeclRef(s"enum class ${typename(d.name, d.body)};", Some(spec.cppNamespace)))
           } else {
             List(ImportRef(include(d.name)))
           }
