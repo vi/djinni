@@ -48,7 +48,7 @@ class CppMarshal(spec: Spec) extends Marshal(spec) {
       case DRecord =>
         if (d.name != exclude) {
           if (dontIncludeRecordsAndEnums) {
-            List(DeclRef(s"class ${typename(d.name, d.body)};", Some(spec.cppNamespace)))
+            List(DeclRef(s"struct ${typename(d.name, d.body)};", Some(spec.cppNamespace)))
           } else {
             List(ImportRef(include(d.name)))
           }
