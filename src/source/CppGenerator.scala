@@ -37,12 +37,12 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
     var hppFwds = mutable.TreeSet[String]()
     var cpp = mutable.TreeSet[String]()
 
-    def find(ty: TypeRef, dontIncludeRecordsAndEnums: Boolean) { find(ty.resolved, dontIncludeRecordsAndEnums) }
-    def find(tm: MExpr, dontIncludeRecordsAndEnums: Boolean) {
-      tm.args.foreach((x) => find(x, dontIncludeRecordsAndEnums))
-      find(tm.base, dontIncludeRecordsAndEnums)
+    def find(ty: TypeRef, forwardDeclareOnly: Boolean) { find(ty.resolved, forwardDeclareOnly) }
+    def find(tm: MExpr, forwardDeclareOnly: Boolean) {
+      tm.args.foreach((x) => find(x, forwardDeclareOnly))
+      find(tm.base, forwardDeclareOnly)
     }
-    def find(m: Meta, dontIncludeRecordsAndEnums : Boolean) = for(r <- marshal.references(m, name, dontIncludeRecordsAndEnums)) r match {
+    def find(m: Meta, forwardDeclareOnly : Boolean) = for(r <- marshal.references(m, name, forwardDeclareOnly)) r match {
       case ImportRef(arg) => hpp.add("#include " + arg)
       case DeclRef(decl, Some(spec.cppNamespace)) => hppFwds.add(decl)
       case DeclRef(_, _) =>
