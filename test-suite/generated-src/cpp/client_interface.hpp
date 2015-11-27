@@ -3,13 +3,14 @@
 
 #pragma once
 
-#include "client_returned_record.hpp"
 #include <cstdint>
 #include <experimental/optional>
 #include <string>
 #include <vector>
 
 namespace testsuite {
+
+class ClientReturnedRecord;
 
 /** Client interface */
 class ClientInterface {

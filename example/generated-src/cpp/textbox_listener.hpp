@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "item_list.hpp"
-
 namespace textsort {
+
+class ItemList;
 
 class TextboxListener {
 public:

@@ -3,12 +3,6 @@
 
 #pragma once
 
-#include "assorted_primitives.hpp"
-#include "color.hpp"
-#include "map_list_record.hpp"
-#include "nested_collection.hpp"
-#include "primitive_list.hpp"
-#include "set_record.hpp"
 #include <cstdint>
 #include <experimental/optional>
 #include <memory>
@@ -18,8 +12,14 @@
 
 namespace testsuite {
 
+class AssortedPrimitives;
 class ClientInterface;
+class MapListRecord;
+class NestedCollection;
+class PrimitiveList;
+class SetRecord;
 class UserToken;
+enum class color;
 
 /**
  * Helper methods used by various different tests.
