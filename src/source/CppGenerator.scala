@@ -149,8 +149,8 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
       refs.cpp.add("#include "+q(spec.cppExtendedRecordIncludePrefix + spec.cppFileIdentStyle(ident) + "." + spec.cppHeaderExt))
     }
     
-    if (r.ext.cpp && r.derivingTypes.contains(DerivingType.Json11)) {
-      refs.cpp.add("#include \"json11.hpp");
+    if (r.derivingTypes.contains(DerivingType.Json11)) {
+      refs.hpp.add("#include \"json11.hpp\"");
     }
 
     // C++ Header
@@ -168,6 +168,11 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
         for (f <- r.fields) {
           writeDoc(w, f.doc)
           w.wl(marshal.fieldType(f.ty) + " " + idCpp.field(f.ident) + ";")
+        }
+
+        if (r.derivingTypes.contains(DerivingType.Json11)) {
+          w.wl
+          w.wl(s"json11::Json as_json11() const;");
         }
 
         if (r.derivingTypes.contains(DerivingType.Eq)) {
@@ -217,6 +222,24 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
     if (r.consts.nonEmpty || r.derivingTypes.nonEmpty) {
       writeCppFile(cppName, origin, refs.cpp, w => {
         generateCppConstants(w, r.consts, actualSelf)
+
+        if (r.derivingTypes.contains(DerivingType.Json11)) {
+          w.wl
+          w.wl(s"json11::Json $actualSelf::as_json11() const {");
+          w.wl("    return json11::Json::object {");
+          for (f <- r.fields) {
+            val tr = f.ty.resolved
+            val value = tr.base match {
+              case x : MPrimitive if x._idlName == "bool" => idCpp.field(f.ident)
+              case x : MPrimitive /* otherwise number */  => idCpp.field(f.ident)
+              case x => "\"unknown type " + tr + "\""
+            }
+          w.wl("        {\"" + idCpp.field(f.ident) + "\", " + value + "},")
+          }
+          w.wl("    };");
+          w.wl("}");
+          w.wl
+        }
 
         if (r.derivingTypes.contains(DerivingType.Eq)) {
           w.wl
