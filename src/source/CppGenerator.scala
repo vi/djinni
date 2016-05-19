@@ -148,6 +148,10 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
     if (r.ext.cpp) {
       refs.cpp.add("#include "+q(spec.cppExtendedRecordIncludePrefix + spec.cppFileIdentStyle(ident) + "." + spec.cppHeaderExt))
     }
+    
+    if (r.ext.cpp && r.derivingTypes.contains(DerivingType.Json11)) {
+      refs.cpp.add("#include \"json11.hpp");
+    }
 
     // C++ Header
     def writeCppPrototype(w: IndentWriter) {

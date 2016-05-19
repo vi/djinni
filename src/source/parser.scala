@@ -108,6 +108,7 @@ private object IdlParser extends RegexParsers {
     _.map(ident => ident.name match {
       case "eq" => Record.DerivingType.Eq
       case "ord" => Record.DerivingType.Ord
+      case "json11" => Record.DerivingType.Json11
       case _ => return err( s"""Unrecognized deriving type "${ident.name}"""")
     }).toSet
   }
