@@ -230,8 +230,9 @@ class CppGenerator(spec: Spec) extends Generator(spec) {
           for (f <- r.fields) {
             val tr = f.ty.resolved
             val value = tr.base match {
-              case x : MPrimitive if x._idlName == "bool" => idCpp.field(f.ident)
-              case x : MPrimitive /* otherwise number */  => idCpp.field(f.ident)
+              case x : MPrimitive if x.idlName == "bool"   => idCpp.field(f.ident)
+              case x : MPrimitive /* otherwise number */   => idCpp.field(f.ident)
+              case x : MOpaque    if x.idlName == "string" => idCpp.field(f.ident)
               case x => "\"unknown type " + tr + "\""
             }
           w.wl("        {\"" + idCpp.field(f.ident) + "\", " + value + "},")
